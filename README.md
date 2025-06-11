@@ -1,7 +1,14 @@
 # Hello world, I'm Nimisha G J
 
-📊 currently working on observability platform. \
+📊 currently working on [observability platform](https://docs.base14.io/). \
 🧑‍🎓 A Computer Science Graduate from KLS GIT, Belgaum
+
+## Previous Works:
+- Expense managment application for startups using ruby on rails.
+- Go application in Finance field.
+- Svelte application in Finance field.
+- Terraform modules for AWS resources.
+- Raspberry pi booting via network.
 
 # Tech Stacks
 <div align="left">
