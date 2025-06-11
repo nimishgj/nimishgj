@@ -64,3 +64,7 @@
 <img src="https://raw.githubusercontent.com/nimishgj/nimishgj/output/snake.svg" alt="Snake animation" />
 
 ###
+
+Links: \
+[leetcode](https://leetcode.com/u/nimishgj/) \
+[linkedin](https://www.linkedin.com/in/nimishgj/)
