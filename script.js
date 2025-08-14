@@ -133,7 +133,6 @@ function createProjectCard(repo) {
     card.style.transition = 'all 0.5s ease';
     
     const languageColor = getLanguageColor(repo.language);
-    const updatedDate = formatDate(repo.updated);
     
     card.innerHTML = `
         <div class="project-header">
@@ -147,7 +146,6 @@ function createProjectCard(repo) {
             <div class="project-tags">
                 ${repo.tags.map(tag => `<span class="project-tag">${tag}</span>`).join('')}
             </div>
-            <span class="project-updated">Updated ${updatedDate}</span>
         </div>
         ${repo.stars ? `<div class="project-stars">⭐ ${repo.stars}</div>` : ''}
     `;
@@ -193,20 +191,6 @@ function getLanguageColor(language) {
     return colors[language] || '#888888';
 }
 
-// Format date for display
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'today';
-    if (diffDays === 1) return 'yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-    return `${Math.floor(diffDays / 365)} years ago`;
-}
 
 // Add scroll animations
 function addScrollAnimations() {
