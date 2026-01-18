@@ -1,0 +1,46 @@
+# Site settings
+title:          Nimisha GJ
+description:    "Technical blogs on Linux, DevOps, and Cloud"
+baseurl:        ""
+url:            "https://nimishgj.com"
+
+# Remote theme
+remote_theme:   nimishgj/tale
+
+# Author
+author:
+  name:         Nimisha GJ
+  url:          https://nimishgj.com
+  email:        nimishgj444@gmail.com
+
+# Social
+github_username: nimishgj
+twitter_username: g_nimish
+linkedin_username: nimishgj
+
+# Build settings
+markdown:       kramdown
+include:
+  - _pages
+
+# Assets
+sass:
+  sass_dir:     _sass
+  style:        compressed
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
+  - jekyll-seo-tag
+  - jekyll-remote-theme
+
+# Permalinks
+permalink:      /:year-:month-:day/:title
+paginate:       5
+
+# Excludes
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
