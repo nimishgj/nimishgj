@@ -29,5 +29,4 @@ Hit me up if you want to work on something, collaborate on tech things, or just 
 
 - [GitHub](https://github.com/nimishgj)
 - [LinkedIn](https://linkedin.com/in/nimishgj)
-- [Twitter](https://twitter.com/g_nimish)
 - [Email](mailto:nimishgj444@gmail.com)
