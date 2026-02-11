@@ -28,6 +28,8 @@ A histogram divides latency into buckets. Each bucket covers a range. The system
 500ms+:     10 requests
 ```
 
+![Latency histogram showing request distribution across buckets](/assets/img/p95-histogram-problem/histogram-buckets.png)
+
 Notice something. We know 150 requests took between 100ms and 250ms. But we don't know their exact values. Were they 101ms? 249ms? The histogram doesn't say.
 
 ## Computing p95 From Buckets
@@ -44,6 +46,8 @@ We walk through buckets, counting:
 - 50-100ms has 800 requests. Running total: 5,400.
 
 Somewhere in that third bucket, we crossed 5,320. So p95 is in the 50-100ms range.
+
+![Cumulative distribution showing where p95 lands in the 50-100ms bucket](/assets/img/p95-histogram-problem/p95-cumulative.png)
 
 But where exactly in that range? 51ms? 99ms? We don't know. The histogram doesn't store individual values. So we pick something — maybe the midpoint, maybe we interpolate.
 
@@ -90,6 +94,8 @@ With p95, you're asking: "Where does the slowest 5% begin?"
 With a threshold-based approach, you're asking: "How many requests exceed this threshold I care about?"
 
 Both tell you something about the tail. But p95 lets the data choose an arbitrary cutoff point. Picking your own threshold lets you choose a meaningful one.
+
+![p95 in unbounded bucket vs threshold-based SLO approach](/assets/img/p95-histogram-problem/unbounded-vs-threshold.png)
 
 And here's the thing — when p95 falls in a well-defined bucket, it *is* meaningful. You get a real latency value that tells you where the tail starts.
 
