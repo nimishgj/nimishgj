@@ -12,6 +12,8 @@ I like building things that make developers' lives easier — CLI tools, monitor
 
 I write here to make sense of what I learn. Sometimes the best way to understand something is to explain it to someone else. If you find something useful, that's a bonus.
 
+If you'd rather see the formal version — work history, open-source contributions, talks — [download my resume](/assets/nimisha-gj-resume.pdf).
+
 When I'm not staring at terminals, you might find me tinkering with my [dotfiles](https://github.com/nimishgj/dotfiles) (it's a rabbit hole, I know), out on a bike ride, lost in a book, or gaming. I'm also currently trying to learn bowling — it's harder than it looks.
 
 ## Stuff I've built
