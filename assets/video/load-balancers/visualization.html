@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>How NGINX holds 100,000 connections</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: #0b0f1a;
+    color: #c9d1d9;
+    font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+    overflow: hidden;
+  }
+  body { display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+  .frame {
+    position: relative;
+    width: 1040px;
+    height: 680px;
+    background: #0b0f1a;
+    border-radius: 12px;
+  }
+
+  /* ---------- Header ---------- */
+  .header {
+    position: absolute;
+    top: 18px;
+    left: 0; right: 0;
+    text-align: center;
+  }
+  .scene-num {
+    font-size: 10px;
+    color: #58a6ff;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+  .scene-title {
+    font-size: 22px;
+    color: #f0f6fc;
+    margin-top: 6px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: opacity 0.4s;
+  }
+
+  /* ---------- Stage ---------- */
+  .stage {
+    position: absolute;
+    top: 88px;
+    left: 30px;
+    right: 30px;
+    bottom: 110px;
+  }
+
+  .divider {
+    position: absolute;
+    left: 0; right: 0;
+    top: 33%;
+    border-top: 1px dashed #2d333b;
+  }
+
+  .label {
+    position: absolute;
+    color: #484f58;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .label-userspace { top: calc(33% - 18px); left: 0; }
+  .label-kernel    { top: calc(33% + 6px);  left: 0; }
+
+  .stage-el {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.5s, transform 0.5s, border-color 0.4s, background 0.4s, box-shadow 0.4s;
+  }
+  .stage-el.show { opacity: 1; }
+
+  /* ---------- NGINX ---------- */
+  .nginx {
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    width: 240px;
+    padding: 12px 16px;
+    border: 2px solid #30363d;
+    border-radius: 10px;
+    background: rgba(88, 166, 255, 0.04);
+    text-align: center;
+  }
+  .nginx.show { transform: translateX(-50%) translateY(0); }
+  .nginx-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #58a6ff;
+    letter-spacing: 0.04em;
+  }
+  .nginx-state {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #6e7681;
+    min-height: 14px;
+    transition: color 0.3s;
+  }
+  .nginx::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 10px;
+    border: 2px solid #58a6ff;
+    opacity: 0;
+    pointer-events: none;
+    animation: breathe 2.4s ease-in-out infinite;
+  }
+  .nginx.sleeping::before { opacity: 0.25; }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.15; transform: scale(1); }
+    50%      { opacity: 0.4;  transform: scale(1.015); }
+  }
+  .nginx.awake {
+    border-color: #3fb950;
+    background: rgba(63, 185, 80, 0.10);
+    box-shadow: 0 0 24px rgba(63, 185, 80, 0.35);
+  }
+  .nginx.awake .nginx-title { color: #3fb950; }
+  .nginx.awake::before { opacity: 0; }
+
+  /* ---------- epoll panel (centerpiece) ---------- */
+  .epoll-panel {
+    top: calc(33% + 30px);
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    width: 580px;
+    padding: 14px 18px 12px;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    background: rgba(255, 215, 80, 0.03);
+  }
+  .epoll-panel.show { transform: translateX(-50%) translateY(0); }
+  .epoll-panel::before {
+    content: 'epoll instance';
+    position: absolute;
+    top: -8px;
+    left: 16px;
+    background: #0b0f1a;
+    padding: 0 8px;
+    font-size: 10px;
+    color: #f7d750;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .epoll-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 28px;
+    padding: 4px 0;
+  }
+  .epoll-row + .epoll-row {
+    border-top: 1px dashed #21262d;
+    margin-top: 2px;
+  }
+  .epoll-label {
+    font-size: 10px;
+    color: #6e7681;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: right;
+  }
+  .epoll-list {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    flex-wrap: wrap;
+    min-height: 22px;
+  }
+  .epoll-fd {
+    padding: 3px 9px;
+    border: 1px solid rgba(88, 166, 255, 0.4);
+    border-radius: 12px;
+    font-size: 10.5px;
+    color: #79c0ff;
+    background: rgba(88, 166, 255, 0.08);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.35s, transform 0.35s, border-color 0.3s, background 0.3s, box-shadow 0.3s, color 0.3s;
+  }
+  .epoll-fd.show { opacity: 1; transform: translateY(0); }
+  .epoll-fd.fired {
+    border-color: #3fb950;
+    color: #3fb950;
+    background: rgba(63, 185, 80, 0.18);
+    box-shadow: 0 0 12px rgba(63, 185, 80, 0.45);
+  }
+  .epoll-fd.listen { color: #f0883e; border-color: rgba(240, 136, 62, 0.5); background: rgba(240, 136, 62, 0.08); }
+  .epoll-fd.listen.fired { color: #3fb950; border-color: #3fb950; background: rgba(63, 185, 80, 0.18); }
+
+  /* ---------- Other kernel components ---------- */
+  .kbox {
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 11px;
+  }
+  .listen {
+    top: calc(33% + 165px);
+    left: 35%;
+    transform: translateX(-50%);
+    border: 1px solid rgba(240, 136, 62, 0.5);
+    background: rgba(240, 136, 62, 0.07);
+    color: #f0883e;
+    min-width: 130px;
+    text-align: center;
+  }
+  .recv-buffer {
+    top: calc(33% + 165px);
+    left: 65%;
+    transform: translateX(-50%);
+    border: 1px solid rgba(121, 192, 255, 0.4);
+    background: rgba(121, 192, 255, 0.05);
+    color: #79c0ff;
+    min-width: 200px;
+    text-align: center;
+    font-family: monospace;
+  }
+  .recv-buffer .label-tag {
+    display: block;
+    font-size: 9px;
+    color: #6e7681;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+  }
+  .recv-buffer .bytes {
+    display: inline-block;
+    color: #c9d1d9;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    min-height: 14px;
+  }
+  .send-buffer {
+    top: calc(33% + 165px);
+    left: 65%;
+    transform: translateX(-50%);
+    border: 1px solid rgba(255, 166, 87, 0.4);
+    background: rgba(255, 166, 87, 0.05);
+    color: #ffa657;
+    min-width: 200px;
+    text-align: center;
+  }
+  .send-buffer .label-tag {
+    display: block;
+    font-size: 9px;
+    color: #6e7681;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Clients ---------- */
+  .clients {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: space-around;
+    padding: 0 60px;
+  }
+  .client {
+    padding: 6px 12px;
+    border: 1px solid rgba(63, 185, 80, 0.35);
+    border-radius: 4px;
+    background: rgba(63, 185, 80, 0.05);
+    color: #7ee787;
+    font-size: 11.5px;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .client.show { opacity: 1; }
+
+  /* ---------- Packets ---------- */
+  .packet {
+    position: absolute;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 5;
+    will-change: transform, opacity;
+  }
+  .packet.syn    { background: #7ee787; box-shadow: 0 0 12px #7ee787, 0 0 24px #3fb95066; }
+  .packet.synack { background: #d2a8ff; box-shadow: 0 0 12px #d2a8ff, 0 0 24px #a371f766; }
+  .packet.ack    { background: #7ee787; box-shadow: 0 0 12px #7ee787, 0 0 24px #3fb95066; }
+  .packet.req    { background: #79c0ff; box-shadow: 0 0 12px #79c0ff, 0 0 24px #58a6ff66; }
+  .packet.res    { background: #ffa657; box-shadow: 0 0 12px #ffa657, 0 0 24px #f0883e66; }
+  .packet.byte   { background: #79c0ff; box-shadow: 0 0 8px #79c0ff;  width:6px; height:6px; }
+  .packet.wake   { background: #f7d750; box-shadow: 0 0 14px #f7d750, 0 0 28px #f7d75066; }
+
+  .packet-label {
+    position: absolute;
+    font-size: 10px;
+    pointer-events: none;
+    z-index: 5;
+    transform: translate(-50%, -22px);
+    will-change: transform, opacity;
+  }
+  .packet-label.syn, .packet-label.ack { color: #7ee787; }
+  .packet-label.synack { color: #d2a8ff; }
+  .packet-label.req    { color: #79c0ff; }
+  .packet-label.res    { color: #ffa657; }
+  .packet-label.wake   { color: #f7d750; font-weight: 600; }
+
+  /* ---------- Boundary flash ---------- */
+  .divider.flash {
+    border-top-color: #f7d750;
+    box-shadow: 0 0 18px #f7d750cc, 0 0 36px #f7d75066;
+    transition: border-top-color 0.1s, box-shadow 0.1s;
+  }
+
+  /* ---------- Footer ---------- */
+  .caption-box {
+    position: absolute;
+    bottom: 50px;
+    left: 60px; right: 60px;
+    text-align: center;
+    min-height: 50px;
+  }
+  .caption {
+    font-size: 13.5px;
+    color: #c9d1d9;
+    line-height: 1.55;
+    opacity: 0;
+    transition: opacity 0.45s;
+  }
+  .caption.show { opacity: 1; }
+  .caption .em { color: #58a6ff; }
+  .caption .em-y { color: #f7d750; }
+
+  .footer {
+    position: absolute;
+    bottom: 14px;
+    left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+  .progress { display: flex; gap: 6px; }
+  .progress .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #30363d;
+    transition: background 0.3s, transform 0.3s;
+    cursor: pointer;
+  }
+  .progress .dot.done { background: #58a6ff; }
+  .progress .dot.active { background: #58a6ff; transform: scale(1.5); box-shadow: 0 0 8px #58a6ff; }
+
+  .ctrl {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    font-family: inherit;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .ctrl:hover { border-color: #58a6ff; color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+
+  <div class="header">
+    <div class="scene-num" id="sceneNum">SCENE 0 OF 7</div>
+    <div class="scene-title" id="sceneTitle">how NGINX holds 100,000 connections</div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="divider" id="divider"></div>
+    <div class="label label-userspace">user space</div>
+    <div class="label label-kernel">kernel</div>
+
+    <div class="stage-el nginx sleeping" id="nginx">
+      <div class="nginx-title">NGINX</div>
+      <div class="nginx-state" id="nginxState">starting up</div>
+    </div>
+
+    <div class="stage-el epoll-panel" id="epollPanel">
+      <div class="epoll-row">
+        <span class="epoll-label">watch list</span>
+        <div class="epoll-list" id="watchList"></div>
+      </div>
+      <div class="epoll-row">
+        <span class="epoll-label">ready list</span>
+        <div class="epoll-list" id="readyList"></div>
+      </div>
+    </div>
+
+    <div class="stage-el kbox listen" id="listen">listening :80</div>
+
+    <div class="stage-el kbox recv-buffer" id="recvBuffer">
+      <span class="label-tag">recv buffer (client_A)</span>
+      <span class="bytes" id="recvBytes"></span>
+    </div>
+
+    <div class="stage-el kbox send-buffer" id="sendBuffer">
+      <span class="label-tag">send buffer (client_A)</span>
+      <span>HTTP/1.1 200 OK ...</span>
+    </div>
+
+    <div class="clients">
+      <div class="client" id="cA">client A</div>
+      <div class="client" id="cB">client B</div>
+      <div class="client" id="cC">client C</div>
+      <div class="client" id="cD">client D</div>
+      <div class="client" id="cE">client E</div>
+      <div class="client" id="cF">client F</div>
+    </div>
+  </div>
+
+  <div class="caption-box">
+    <div class="caption" id="caption"></div>
+  </div>
+
+  <div class="footer">
+    <button class="ctrl" id="prevBtn">prev</button>
+    <div class="progress" id="progress"></div>
+    <button class="ctrl" id="nextBtn">next</button>
+    <button class="ctrl" id="replayBtn">replay</button>
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const stage = $('stage');
+const sceneNum = $('sceneNum');
+const sceneTitle = $('sceneTitle');
+const caption = $('caption');
+const progress = $('progress');
+
+const nginx = $('nginx');
+const nginxState = $('nginxState');
+const divider = $('divider');
+const epollPanel = $('epollPanel');
+const watchListEl = $('watchList');
+const readyListEl = $('readyList');
+const listen = $('listen');
+const recvBuffer = $('recvBuffer');
+const recvBytes = $('recvBytes');
+const sendBuffer = $('sendBuffer');
+
+const clients = {
+  A: $('cA'), B: $('cB'), C: $('cC'),
+  D: $('cD'), E: $('cE'), F: $('cF')
+};
+
+// ---------- helpers ----------
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const show = (el) => el.classList.add('show');
+const hide = (el) => el.classList.remove('show');
+const setText = (el, s) => { el.textContent = s; };
+
+function setHeader(num, title) {
+  sceneNum.textContent = `SCENE ${num} OF ${SCENES.length}`;
+  sceneTitle.style.opacity = '0';
+  setTimeout(() => {
+    sceneTitle.textContent = title;
+    sceneTitle.style.opacity = '1';
+  }, 200);
+}
+
+function setCaption(html) {
+  caption.classList.remove('show');
+  setTimeout(() => {
+    caption.innerHTML = html;
+    caption.classList.add('show');
+  }, 250);
+}
+
+function center(el) {
+  const s = stage.getBoundingClientRect();
+  const r = el.getBoundingClientRect();
+  return { x: r.left - s.left + r.width / 2, y: r.top - s.top + r.height / 2 };
+}
+
+function spawnPacket(fromEl, toEl, kind, label, duration = 1000) {
+  const from = center(fromEl);
+  const to = center(toEl);
+  const p = document.createElement('div');
+  p.className = 'packet ' + kind;
+  p.style.left = (from.x - 4) + 'px';
+  p.style.top  = (from.y - 4) + 'px';
+  p.style.transition = `left ${duration}ms cubic-bezier(.45,.0,.2,1), top ${duration}ms cubic-bezier(.45,.0,.2,1), opacity 280ms`;
+  stage.appendChild(p);
+
+  let lab = null;
+  if (label) {
+    lab = document.createElement('div');
+    lab.className = 'packet-label ' + kind;
+    lab.textContent = label;
+    lab.style.left = from.x + 'px';
+    lab.style.top  = from.y + 'px';
+    lab.style.transition = p.style.transition;
+    stage.appendChild(lab);
+  }
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    p.style.left = (to.x - 4) + 'px';
+    p.style.top  = (to.y - 4) + 'px';
+    if (lab) {
+      lab.style.left = to.x + 'px';
+      lab.style.top  = to.y + 'px';
+    }
+  }));
+
+  // flash divider as packet crosses (rough heuristic: when packets travel between user/kernel halves)
+  const dividerY = stage.getBoundingClientRect().height * 0.33;
+  const crossesDivider = (from.y < dividerY) !== (to.y < dividerY);
+  if (crossesDivider) {
+    setTimeout(() => {
+      divider.classList.add('flash');
+      setTimeout(() => divider.classList.remove('flash'), 400);
+    }, duration * 0.45);
+  }
+
+  setTimeout(() => {
+    p.style.opacity = '0';
+    if (lab) lab.style.opacity = '0';
+    setTimeout(() => { p.remove(); if (lab) lab.remove(); }, 320);
+  }, duration);
+}
+
+function setNginxState(stateText, awake = false) {
+  nginxState.textContent = stateText;
+  if (awake) {
+    nginx.classList.add('awake');
+    nginx.classList.remove('sleeping');
+  } else {
+    nginx.classList.remove('awake');
+    nginx.classList.add('sleeping');
+  }
+}
+
+// ---------- epoll list management ----------
+const watch = new Map();
+const ready = new Map();
+
+function makeFd(label, kind = '') {
+  const el = document.createElement('div');
+  el.className = 'epoll-fd ' + kind;
+  el.textContent = label;
+  return el;
+}
+
+function addToWatch(label, kind = '') {
+  if (watch.has(label)) return;
+  const el = makeFd(label, kind);
+  watchListEl.appendChild(el);
+  watch.set(label, el);
+  requestAnimationFrame(() => el.classList.add('show'));
+}
+
+function removeFromWatch(label) {
+  const el = watch.get(label);
+  if (!el) return;
+  el.classList.remove('show');
+  setTimeout(() => el.remove(), 320);
+  watch.delete(label);
+}
+
+// Mark a watch-list entry as 'fired' (event pending) AND add it to the ready list.
+function fireEvent(label, kind = '') {
+  const w = watch.get(label);
+  if (w) w.classList.add('fired');
+
+  if (ready.has(label)) return;
+  const el = makeFd(label, kind + ' fired');
+  readyListEl.appendChild(el);
+  ready.set(label, el);
+  requestAnimationFrame(() => el.classList.add('show'));
+}
+
+// Clear ready list (NGINX has consumed all pending events)
+function clearReady() {
+  ready.forEach((el) => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 320);
+  });
+  ready.clear();
+  watch.forEach((el) => el.classList.remove('fired'));
+}
+
+function clearWatch() {
+  watch.forEach((el) => { el.classList.remove('show'); setTimeout(() => el.remove(), 320); });
+  watch.clear();
+}
+
+// ---------- reset ----------
+function resetStage() {
+  [nginx, epollPanel, listen, recvBuffer, sendBuffer,
+   ...Object.values(clients)
+  ].forEach(hide);
+  setNginxState('starting up', false);
+  setText(recvBytes, '');
+  clearWatch();
+  clearReady();
+  stage.querySelectorAll('.packet, .packet-label').forEach(el => el.remove());
+}
+
+function showCommonStage() {
+  show(nginx);
+  show(epollPanel);
+}
+
+// ---------- scenes ----------
+const SCENES = [
+
+  // ============================================================
+  // SCENE 1 — NGINX listens, registers with epoll, goes to sleep
+  // ============================================================
+  async (ctx) => {
+    setHeader(1, 'NGINX listens and registers with epoll');
+    show(nginx);
+    setNginxState('starting up', false);
+    nginx.classList.remove('sleeping');
+    await sleep(400);
+    show(listen);
+    await sleep(500);
+    show(epollPanel);
+    await sleep(500);
+
+    setCaption(`NGINX opens port 80 and tells the kernel: <span class="em-y">"watch this socket for me"</span>. The listening socket gets added to epoll's watch list.`);
+    await sleep(900);
+
+    if (ctx.cancelled) return;
+    addToWatch('listen :80', 'listen');
+    await sleep(1500);
+
+    setNginxState('asleep in epoll_wait', false);
+    setCaption(`Then NGINX calls <span class="em-y">epoll_wait()</span>. The thread parks. The kernel takes over the watching.`);
+    await sleep(3500);
+  },
+
+  // ============================================================
+  // SCENE 2 — TCP handshake (kernel-only). Watch list stays.
+  // ============================================================
+  async (ctx) => {
+    setHeader(2, 'A connection arrives — the kernel handles it');
+    showCommonStage();
+    show(listen);
+    addToWatch('listen :80', 'listen');
+    setNginxState('asleep in epoll_wait', false);
+    show(clients.A);
+    await sleep(500);
+
+    setCaption(`Three packets establish the connection. <span class="em">NGINX is asleep the entire time</span> — the kernel handles everything.`);
+    await sleep(800);
+
+    spawnPacket(clients.A, listen, 'syn', 'SYN', 1100);
+    await sleep(1300);
+    if (ctx.cancelled) return;
+    spawnPacket(listen, clients.A, 'synack', 'SYN-ACK', 1100);
+    await sleep(1300);
+    if (ctx.cancelled) return;
+    spawnPacket(clients.A, listen, 'ack', 'ACK', 1100);
+    await sleep(1500);
+
+    if (ctx.cancelled) return;
+    setCaption(`Handshake done. The kernel marks the listening socket as <span class="em-y">readable</span> — and adds it to epoll's <span class="em-y">ready list</span>.`);
+    fireEvent('listen :80', 'listen');
+    await sleep(3500);
+  },
+
+  // ============================================================
+  // SCENE 3 — epoll_wait returns; NGINX accepts and registers new fd
+  // ============================================================
+  async (ctx) => {
+    setHeader(3, 'epoll_wait returns the ready list');
+    showCommonStage();
+    show(listen);
+    show(clients.A);
+    addToWatch('listen :80', 'listen');
+    fireEvent('listen :80', 'listen');
+    setNginxState('asleep in epoll_wait', false);
+    await sleep(500);
+
+    // Wake-up signal travels from kernel up to NGINX
+    spawnPacket(epollPanel, nginx, 'wake', 'wake!', 900);
+    await sleep(1000);
+    if (ctx.cancelled) return;
+    setNginxState('woken — sees [listen]', true);
+    setCaption(`epoll_wait returns with the <span class="em-y">ready list</span>: just <span class="em">[listen]</span>. NGINX walks the list. For the listening socket, the action is <span class="em">accept()</span>.`);
+    await sleep(2200);
+
+    if (ctx.cancelled) return;
+    // accept() — clear ready list, add new client_A fd to watch
+    clearReady();
+    setNginxState('calls accept()', true);
+    await sleep(900);
+
+    addToWatch('client_A');
+    setCaption(`accept() returns a new file descriptor for the client. NGINX <span class="em-y">epoll_ctl(ADD)</span>'s it — now the watch list has both.`);
+    await sleep(2800);
+
+    if (ctx.cancelled) return;
+    setNginxState('asleep in epoll_wait', false);
+    await sleep(1500);
+  },
+
+  // ============================================================
+  // SCENE 4 — Bytes arrive on client_A's socket
+  // ============================================================
+  async (ctx) => {
+    setHeader(4, 'Data arrives — the kernel fires another event');
+    showCommonStage();
+    show(listen);
+    show(clients.A);
+    addToWatch('listen :80', 'listen');
+    addToWatch('client_A');
+    setNginxState('asleep in epoll_wait', false);
+    await sleep(400);
+    show(recvBuffer);
+    setText(recvBytes, '');
+
+    setCaption(`The client sends a request. Bytes flow into the kernel's <span class="em">recv buffer</span>. TCP is a stream — bytes arrive in whatever chunks the network gives.`);
+
+    const chunks = ['GET /', 'index', '.html ', 'HTTP/', '1.1\\r\\n', '\\r\\n'];
+    let acc = '';
+    for (const chunk of chunks) {
+      if (ctx.cancelled) return;
+      spawnPacket(clients.A, recvBuffer, 'byte', null, 700);
+      await sleep(450);
+      acc += chunk;
+      setText(recvBytes, acc);
+    }
+    await sleep(800);
+
+    if (ctx.cancelled) return;
+    setCaption(`Bytes are buffered. The kernel marks <span class="em">client_A</span> as readable and pushes it onto epoll's <span class="em-y">ready list</span>.`);
+    fireEvent('client_A');
+    await sleep(3000);
+  },
+
+  // ============================================================
+  // SCENE 5 — NGINX wakes, reads, parses HTTP
+  // ============================================================
+  async (ctx) => {
+    setHeader(5, 'NGINX reads the bytes and parses HTTP');
+    showCommonStage();
+    show(listen); show(clients.A); show(recvBuffer);
+    setText(recvBytes, 'GET /index.html HTTP/1.1\\r\\n\\r\\n');
+    addToWatch('listen :80', 'listen');
+    addToWatch('client_A');
+    fireEvent('client_A');
+    setNginxState('asleep in epoll_wait', false);
+    await sleep(500);
+
+    spawnPacket(epollPanel, nginx, 'wake', 'wake!', 900);
+    await sleep(950);
+    if (ctx.cancelled) return;
+    setNginxState('reads client_A', true);
+    setCaption(`epoll_wait returns <span class="em">[client_A]</span>. NGINX calls <span class="em-y">read()</span>, drains the kernel buffer, and scans for <span class="em">\\r\\n\\r\\n</span> to find the end of the HTTP request.`);
+    await sleep(1500);
+
+    if (ctx.cancelled) return;
+    setText(recvBytes, '');
+    clearReady();
+    await sleep(1500);
+
+    if (ctx.cancelled) return;
+    setCaption(`The kernel doesn't know HTTP. <span class="em">Framing rules live in NGINX</span> — the kernel just delivers bytes; the application decides where messages begin and end.`);
+    await sleep(3500);
+  },
+
+  // ============================================================
+  // SCENE 6 — NGINX writes response, write() returns immediately
+  // ============================================================
+  async (ctx) => {
+    setHeader(6, 'NGINX writes a response');
+    showCommonStage();
+    show(listen); show(clients.A);
+    addToWatch('listen :80', 'listen');
+    addToWatch('client_A');
+    setNginxState('writing response', true);
+    await sleep(400);
+    show(sendBuffer);
+    setCaption(`NGINX calls <span class="em-y">write()</span>. The bytes copy into the kernel's <span class="em">send buffer</span> — <span class="em">write() returns instantly</span>. The kernel handles delivery from there.`);
+    await sleep(800);
+
+    spawnPacket(nginx, sendBuffer, 'res', null, 800);
+    await sleep(900);
+    if (ctx.cancelled) return;
+    setNginxState('asleep in epoll_wait', false);
+    spawnPacket(sendBuffer, clients.A, 'res', '200 OK', 1200);
+    await sleep(1400);
+
+    if (ctx.cancelled) return;
+    setCaption(`NGINX is back asleep. epoll's watch list still has both file descriptors — ready to be woken by whichever fires next.`);
+    await sleep(3000);
+  },
+
+  // ============================================================
+  // SCENE 7 — Many connections; epoll handles them all
+  // ============================================================
+  async (ctx) => {
+    setHeader(7, 'One thread, thousands of connections');
+    showCommonStage();
+    show(listen);
+    Object.values(clients).forEach(show);
+    addToWatch('listen :80', 'listen');
+    ['client_A','client_B','client_C','client_D','client_E','client_F'].forEach(c => addToWatch(c));
+    setNginxState('asleep in epoll_wait', false);
+    await sleep(800);
+
+    setCaption(`Every connection sits in epoll's watch list. Whichever fires, the kernel adds it to the ready list. NGINX wakes, processes the batch, sleeps again. <span class="em-y">The waiting lives in the kernel</span>.`);
+    await sleep(1200);
+
+    const labels = ['client_A','client_B','client_C','client_D','client_E','client_F'];
+    const clientList = Object.values(clients);
+
+    for (let i = 0; i < 12; i++) {
+      if (ctx.cancelled) return;
+      const idx = Math.floor(Math.random() * 6);
+      const label = labels[idx];
+      const cli = clientList[idx];
+
+      // packet arrives at kernel
+      spawnPacket(cli, epollPanel, 'req', null, 700);
+      await sleep(420);
+      // event fires in epoll
+      fireEvent(label);
+      await sleep(280);
+      // wake signal up to NGINX
+      spawnPacket(epollPanel, nginx, 'wake', null, 500);
+      setNginxState('serving ' + label.replace('client_',''), true);
+      await sleep(450);
+      // ready list cleared
+      clearReady();
+      // response down
+      spawnPacket(nginx, cli, 'res', null, 700);
+      setNginxState('asleep in epoll_wait', false);
+      await sleep(450);
+    }
+    await sleep(1000);
+  },
+];
+
+// ---------- controller ----------
+let currentScene = 0;
+let currentCtx = { cancelled: false };
+
+function buildProgress() {
+  progress.innerHTML = '';
+  for (let i = 0; i < SCENES.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.dataset.idx = i;
+    d.addEventListener('click', () => goTo(i));
+    progress.appendChild(d);
+  }
+}
+function updateProgress() {
+  [...progress.children].forEach((d, i) => {
+    d.classList.remove('done', 'active');
+    if (i < currentScene) d.classList.add('done');
+    if (i === currentScene) d.classList.add('active');
+  });
+}
+
+async function playScene(i) {
+  currentScene = i;
+  updateProgress();
+  currentCtx.cancelled = true;
+  const ctx = { cancelled: false };
+  currentCtx = ctx;
+  resetStage();
+  await sleep(150);
+  await SCENES[i](ctx);
+  if (ctx.cancelled) return;
+  if (i < SCENES.length - 1) {
+    await sleep(700);
+    if (ctx.cancelled) return;
+    playScene(i + 1);
+  } else {
+    [...progress.children].forEach(d => d.classList.add('done'));
+  }
+}
+
+function goTo(i) {
+  if (i < 0 || i >= SCENES.length) return;
+  playScene(i);
+}
+
+$('prevBtn').addEventListener('click', () => goTo(currentScene - 1));
+$('nextBtn').addEventListener('click', () => goTo(currentScene + 1));
+$('replayBtn').addEventListener('click', () => goTo(0));
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') goTo(currentScene + 1);
+  if (e.key === 'ArrowLeft')  goTo(currentScene - 1);
+  if (e.key === 'r' || e.key === 'R') goTo(0);
+});
+
+buildProgress();
+playScene(0);
+</script>
+</body>
+</html>
