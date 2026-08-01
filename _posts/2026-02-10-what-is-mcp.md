@@ -3,6 +3,8 @@ layout: post
 title: "Why AI Needed Its Own Protocol"
 date: 2026-02-10 12:00:00 +0530
 tags: [mcp, ai, apis]
+preview: /assets/img/what-is-mcp/preview.svg
+preview_alt: "An AI app talking through one MCP connection to github, database and slack tool servers"
 ---
 
 If you've built anything with REST APIs, you know the drill. You have endpoints, you send requests, you get responses. It works. It's been working for over two decades.

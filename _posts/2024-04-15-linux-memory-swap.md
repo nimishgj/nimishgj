@@ -3,6 +3,8 @@ layout: post
 title:  "Understanding memory and swap usage in Linux"
 date: 2024-04-15 12:00:00 +0530
 tags: [linux, memory, swap]
+preview: /assets/img/linux-memory-swap/preview.svg
+preview_alt: "RAM fills with pages and inactive ones get moved out to swap on disk"
 ---
 
 # Introduction

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 250" role="img" aria-label="Containers on two different Docker hosts read and write the same NFS-backed volume, so data survives containers and follows them across hosts">
+<style>
+text{font-family:Helvetica,Arial,sans-serif;font-size:13px;fill:#7d8590}
+.sm{font-size:11px}
+.bx{fill:none;stroke:#8b949e;stroke-width:1.5}
+.ln{stroke:#8b949e;stroke-width:1.5;fill:none}
+@keyframes w1{0%,4%{opacity:0;transform:translateX(0)}6%{opacity:1}20%{opacity:1;transform:translateX(320)}22%,100%{opacity:0}}
+@keyframes r1{0%,30%{opacity:0;transform:translateX(0)}32%{opacity:1}46%{opacity:1;transform:translateX(-320)}48%,100%{opacity:0}}
+@keyframes w2{0%,54%{opacity:0;transform:translateX(0)}56%{opacity:1}70%{opacity:1;transform:translateX(320)}72%,100%{opacity:0}}
+@keyframes r2{0%,78%{opacity:0;transform:translateX(0)}80%{opacity:1}94%{opacity:1;transform:translateX(-320)}96%,100%{opacity:0}}
+.w1{animation:w1 12s linear infinite}.r1{animation:r1 12s linear infinite}
+.w2{animation:w2 12s linear infinite}.r2{animation:r2 12s linear infinite}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<rect x="30" y="35" width="200" height="80" rx="8" class="bx"/>
+<text x="130" y="60" text-anchor="middle" class="sm">docker host A</text>
+<rect x="55" y="70" width="150" height="34" rx="5" class="bx" stroke="#4a9ae1"/>
+<text x="130" y="91" text-anchor="middle" class="sm" fill="#4a9ae1">container</text>
+<rect x="30" y="135" width="200" height="80" rx="8" class="bx"/>
+<text x="130" y="160" text-anchor="middle" class="sm">docker host B</text>
+<rect x="55" y="170" width="150" height="34" rx="5" class="bx" stroke="#4a9ae1"/>
+<text x="130" y="191" text-anchor="middle" class="sm" fill="#4a9ae1">container</text>
+<line x1="232" y1="87" x2="588" y2="112" class="ln"/>
+<line x1="232" y1="187" x2="588" y2="140" class="ln"/>
+<rect x="590" y="85" width="260" height="80" rx="8" class="bx" stroke="#2ea043"/>
+<text x="720" y="115" text-anchor="middle" fill="#2ea043">NFS server</text>
+<text x="720" y="137" text-anchor="middle" class="sm">/exports/data — one copy</text>
+<circle class="w1" cx="250" cy="90" r="5.5" fill="#4a9ae1" opacity="0"/>
+<circle class="r1" cx="580" cy="138" r="5.5" fill="#2ea043" opacity="0"/>
+<circle class="w2" cx="250" cy="185" r="5.5" fill="#4a9ae1" opacity="0"/>
+<circle class="r2" cx="580" cy="112" r="5.5" fill="#2ea043" opacity="0"/>
+<text x="440" y="238" text-anchor="middle" class="sm">containers come and go — the data stays, on any host</text>
+</svg>

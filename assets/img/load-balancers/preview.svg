@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 250" role="img" aria-label="Thousands of client connections converge into a single process whose event loop spins, multiplexing them all and sending responses out">
+<style>
+text{font-family:Helvetica,Arial,sans-serif;font-size:13px;fill:#7d8590}
+.sm{font-size:11px}
+.bx{fill:none;stroke:#8b949e;stroke-width:1.5}
+@keyframes in{0%{opacity:0;transform:translateX(0)}5%{opacity:1}30%{opacity:1;transform:translateX(295)}33%,100%{opacity:0;transform:translateX(295)}}
+.i1{animation:in 6s linear infinite}
+.i2{animation:in 6s linear infinite .8s}
+.i3{animation:in 6s linear infinite 1.6s}
+.i4{animation:in 6s linear infinite 2.4s}
+.i5{animation:in 6s linear infinite 3.2s}
+.i6{animation:in 6s linear infinite 4s}
+.i7{animation:in 6s linear infinite 4.8s}
+@keyframes out{0%{opacity:0;transform:translateX(0)}5%{opacity:1}30%{opacity:1;transform:translateX(295)}33%,100%{opacity:0;transform:translateX(295)}}
+.o1{animation:out 6s linear infinite .5s}
+.o2{animation:out 6s linear infinite 1.7s}
+.o3{animation:out 6s linear infinite 2.9s}
+.o4{animation:out 6s linear infinite 4.1s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loop{animation:spin 3s linear infinite;transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<text x="80" y="36" class="sm">100,000 connections</text>
+<circle class="i1" cx="40" cy="70" r="5" fill="#4a9ae1" opacity="0"/>
+<circle class="i2" cx="55" cy="95" r="5" fill="#4a9ae1" opacity="0"/>
+<circle class="i3" cx="35" cy="120" r="5" fill="#4a9ae1" opacity="0"/>
+<circle class="i4" cx="60" cy="145" r="5" fill="#4a9ae1" opacity="0"/>
+<circle class="i5" cx="42" cy="170" r="5" fill="#4a9ae1" opacity="0"/>
+<circle class="i6" cx="50" cy="108" r="5" fill="#4a9ae1" opacity="0"/>
+<circle class="i7" cx="45" cy="132" r="5" fill="#4a9ae1" opacity="0"/>
+<rect x="370" y="55" width="200" height="130" rx="10" class="bx"/>
+<text x="470" y="83" text-anchor="middle">one process</text>
+<g class="loop">
+  <circle cx="470" cy="130" r="26" fill="none" stroke="#4a9ae1" stroke-width="3" stroke-dasharray="122 41"/>
+</g>
+<text x="470" y="207" text-anchor="middle" class="sm">event loop · epoll · no thread per connection</text>
+<circle class="o1" cx="580" cy="90" r="5" fill="#2ea043" opacity="0"/>
+<circle class="o2" cx="585" cy="120" r="5" fill="#2ea043" opacity="0"/>
+<circle class="o3" cx="578" cy="150" r="5" fill="#2ea043" opacity="0"/>
+<circle class="o4" cx="583" cy="135" r="5" fill="#2ea043" opacity="0"/>
+<text x="800" y="36" text-anchor="end" class="sm">responses</text>
+</svg>

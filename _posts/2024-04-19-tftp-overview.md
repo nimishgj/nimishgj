@@ -3,6 +3,8 @@ layout: post
 title:  "TFTP: A Lightweight Protocol for File Transfer"
 date: 2024-04-19 12:00:00 +0530
 tags: [tftp, protocols]
+preview: /assets/img/tftp-overview/tftp-communication-flow.png
+preview_alt: "TFTP communication flow between client and server"
 ---
 
 ## TFTP protocol overview

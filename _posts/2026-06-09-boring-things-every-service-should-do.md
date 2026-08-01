@@ -3,6 +3,8 @@ layout: post
 title: "10 Things Every Service Should Do Before Production"
 date: 2026-06-09 12:00:00 +0530
 tags: [sre, devops]
+preview: /assets/img/boring-service/preview.svg
+preview_alt: "A request flowing from client to dependency, with the ten production-readiness practices checked off"
 ---
 
 The incidents that hurt the most are almost never about a

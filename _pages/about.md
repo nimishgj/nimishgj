@@ -4,6 +4,8 @@ title: About
 permalink: /about/
 ---
 
+<img src="/assets/img/profile/nimisha-profile.jpg" alt="Nimisha GJ" class="about-photo">
+
 Hey there!
 
 I'm Nimisha, a DevOps Engineer based in Bangalore. I spend most of my time building observability platforms and cloud infrastructure at [Infraspec](https://infraspec.dev).
@@ -20,6 +22,7 @@ When I'm not staring at terminals, you might find me tinkering with my [dotfiles
 
 Some side projects I've been working on — mostly scratching my own itches:
 
+- [aws-radar](https://github.com/nimishgj/aws-radar) — once forgot to shut down an EKS cluster and paid dearly for it, so I built this and set alert me before it happens again
 - [tmi](https://github.com/nimishgj/tmi) — got tired of setting up tmux sessions manually, so I made this
 - [cpbrd](https://github.com/nimishgj/cpbrd) — a clipboard manager because I kept losing things I copied
 - [otel-collector-contrib-config](https://github.com/nimishgj/otel-collector-contrib-config) — configs I use for OpenTelemetry, figured others might find them useful

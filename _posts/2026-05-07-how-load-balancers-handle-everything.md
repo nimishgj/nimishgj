@@ -3,6 +3,8 @@ layout: post
 title: "How One Process Holds 100,000 Connections: A Tour Through the Network Stack"
 date: 2026-05-07 12:00:00 +0530
 tags: [networking, linux, kernel, nginx, tcp]
+preview: /assets/img/load-balancers/preview.svg
+preview_alt: "Thousands of connections multiplexed through a single process's spinning event loop"
 ---
 
 <iframe src="/assets/video/load-balancers/visualization.html"

@@ -2,3 +2,32 @@
 p {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
+
+// Optional post preview (image / gif / animated svg) in the home page listing,
+// enabled per-post with `preview: /assets/...` in front matter.
+// Full content width, jeffgeerling.com style.
+.catalogue-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1rem 0 1.25rem;
+}
+
+// Full-width but subtle title underline on the home page listing
+.catalogue-line,
+.catalogue-item:hover .catalogue-line,
+.catalogue-item:focus .catalogue-line {
+  width: 100%;
+  border-top: 1px solid var(--border-color, #e5e5e5);
+}
+
+// Profile photo on the about page
+.about-photo {
+  display: block;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 1.75rem;
+}

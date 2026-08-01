@@ -5,6 +5,8 @@ author: "Nimisha GJ & Ranjan"
 display_author: <a href="https://nimishgj.com">Nimisha GJ</a> & <a href="https://www.linkedin.com/in/rnjns/">Ranjan</a>
 date: 2026-01-18 12:00:00 +0530
 tags: [observability, sre, latency]
+preview: /assets/img/p95-histogram-problem/histogram-buckets.png
+preview_alt: "Latency histogram showing request distribution across buckets"
 ---
 
 Percentiles are everywhere: dashboards, SLOs, alert pages, standups. They feel intuitive and precise.
