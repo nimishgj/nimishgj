@@ -1,0 +1,204 @@
+// Dark mode theme colors
+[data-theme="dark"] {
+  --bg-color: #202124;
+  --text-color: #b0b0b0;
+  --heading-color: #d0d0d0;
+  --link-color: #4a9ae1;
+  --border-color: #333;
+  --code-bg: #f9f9f9;
+  --code-color: #bf616a;
+  --shadow-color: rgba(0, 0, 0, .5);
+  --tint-color: #ddd;
+}
+
+// Apply CSS custom properties to elements
+html,
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  @include transition(background-color .3s ease, color .3s ease);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--heading-color);
+}
+
+a {
+  color: var(--link-color);
+}
+
+blockquote {
+  border-left-color: var(--border-color);
+  color: var(--tint-color);
+}
+
+// Navigation overrides
+.nav {
+  box-shadow: 0 2px 2px -2px var(--shadow-color);
+  background-color: var(--bg-color);
+
+  &-title {
+    color: var(--text-color);
+  }
+
+  li {
+    color: var(--text-color);
+  }
+
+  a {
+    color: var(--text-color);
+  }
+}
+
+footer span {
+  color: var(--text-color);
+}
+
+// Catalogue (post list) overrides
+.catalogue {
+  &-item {
+    border-bottom-color: var(--border-color);
+    color: var(--text-color);
+  }
+
+  &-title {
+    color: var(--heading-color);
+  }
+
+  &-time,
+  &-pinned {
+    color: var(--tint-color);
+  }
+
+  &-line {
+    border-top-color: var(--heading-color);
+  }
+}
+
+// Code block overrides for dark mode
+[data-theme="dark"] {
+  code {
+    background-color: #2a2a2a !important;
+    color: #e5e5e5;
+  }
+
+  pre {
+    background-color: #2a2a2a !important;
+    color: #e5e5e5;
+  }
+
+  .highlight {
+    background-color: #2a2a2a !important;
+    color: #e5e5e5;
+  }
+
+  .highlighter-rouge {
+    background-color: #2a2a2a !important;
+  }
+}
+
+// Pagination overrides
+.pagination {
+  border-top-color: var(--border-color);
+
+  span {
+    color: var(--heading-color);
+  }
+
+  .top {
+    color: var(--text-color);
+  }
+
+  .arrow {
+    color: var(--text-color);
+  }
+}
+
+// Post page overrides
+.post {
+  &-title {
+    color: var(--heading-color);
+  }
+
+  &-info {
+    color: var(--tint-color);
+  }
+
+  &-line {
+    border-top-color: var(--heading-color);
+  }
+
+  img + em {
+    color: var(--tint-color);
+  }
+}
+
+// Theme toggle button
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .5rem;
+  color: var(--text-color);
+  opacity: .6;
+  @include transition(opacity .2s ease-out);
+
+  &:hover,
+  &:focus {
+    opacity: 1;
+    outline: none;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+
+  .sun-icon {
+    display: none;
+  }
+
+  .moon-icon {
+    display: block;
+  }
+}
+
+[data-theme="dark"] .theme-toggle {
+  .sun-icon {
+    display: block;
+  }
+
+  .moon-icon {
+    display: none;
+  }
+}
+
+// Position toggle in nav
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .nav-title {
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 600px) {
+  .nav-container {
+    justify-content: flex-start;
+  }
+
+  .theme-toggle {
+    position: absolute;
+    right: -3rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}

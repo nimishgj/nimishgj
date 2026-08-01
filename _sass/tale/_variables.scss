@@ -1,0 +1,43 @@
+// Colors
+$default-color: #555 !default;
+$default-shade: #353535 !default;
+$default-tint: #aaa !default;
+$grey-1: #979797 !default;
+$grey-2: #e5e5e5 !default;
+$grey-3: #f9f9f9 !default;
+$white: #fff !default;
+$blue: #4a9ae1 !default;
+$shadow-color: rgba(0, 0, 0, .2) !default;
+$code-color: #bf616a !default;
+
+// CSS Custom Properties for theme switching
+:root {
+  --bg-color: #{$white};
+  --text-color: #{$default-color};
+  --heading-color: #{$default-shade};
+  --link-color: #{$blue};
+  --border-color: #{$grey-2};
+  --code-bg: #{$grey-3};
+  --code-color: #{$code-color};
+  --shadow-color: #{$shadow-color};
+  --tint-color: #{$default-tint};
+}
+
+// Fonts (jeffgeerling.com stack)
+$system-font: Helvetica, Arial, sans-serif !default;
+$serif-primary: $system-font !default;
+$serif-secondary: $system-font !default;
+$sans-serif: $system-font !default;
+$monospaced: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !default;
+
+@mixin box-sizing($type: border-box) {
+  -webkit-box-sizing: $type;
+     -moz-box-sizing: $type;
+          box-sizing: $type;
+}
+
+@mixin transition($args...) {
+  -webkit-transition: $args;
+     -moz-transition: $args;
+          transition: $args;
+}
