@@ -3,6 +3,17 @@ p {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+// Larger base font: everything is rem-based, so this scales the whole site
+html {
+  font-size: 16px;
+}
+
+@media (min-width: 600px) {
+  html {
+    font-size: 18px;
+  }
+}
+
 // Optional post preview (image / gif / animated svg) in the home page listing,
 // enabled per-post with `preview: /assets/...` in front matter.
 // Full content width, jeffgeerling.com style.
@@ -12,6 +23,19 @@ p {
   height: auto;
   border-radius: 8px;
   margin: 1rem 0 1.25rem;
+}
+
+// Video previews: the animation plays, but clicks fall through to the post link
+.catalogue-preview iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  height: auto;
+  min-height: 280px;
+  border: 1px solid var(--border-color, #e5e5e5);
+  border-radius: 8px;
+  margin: 1rem 0 1.25rem;
+  pointer-events: none;
 }
 
 // Full-width but subtle title underline on the home page listing
