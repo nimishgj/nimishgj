@@ -1,16 +1,3 @@
-// Dark mode uses softened neutrals to reduce glare during long-form reading.
-[data-theme="dark"] {
-  --bg-color: #181818;
-  --text-color: #d0d0d0;
-  --heading-color: #ededed;
-  --link-color: #dedede;
-  --border-color: #383838;
-  --code-bg: #202020;
-  --code-color: #d0d0d0;
-  --shadow-color: #000;
-  --tint-color: #a8a8a8;
-}
-
 // Apply CSS custom properties to elements
 html,
 body {

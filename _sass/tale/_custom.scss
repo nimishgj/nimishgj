@@ -1,17 +1,39 @@
-// jeffgeerling.com typography: Helvetica base, Helvetica Neue paragraphs
-p {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+// Match the reference blog's native system typography exactly.
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
 }
 
-// Larger base font: everything is rem-based, so this scales the whole site
+p {
+  font-family: inherit;
+}
+
+// Match the reference header: identity followed by horizontal navigation links.
+.nav {
+  box-shadow: none;
+
+  &-container {
+    justify-content: flex-start;
+  }
+
+  ul {
+    position: static;
+    display: flex;
+    gap: 16px;
+    margin: 0 0 0 20px;
+    text-align: left;
+  }
+
+  li {
+    padding: 0;
+  }
+}
+
+// Keep rem-based theme typography aligned with the reference's 16px base.
 html {
   font-size: 16px;
-}
-
-@media (min-width: 600px) {
-  html {
-    font-size: 18px;
-  }
 }
 
 // Optional post preview (image / gif / animated svg) in the home page listing,
@@ -49,6 +71,64 @@ html {
 .catalogue-item:focus .catalogue-line {
   width: 100%;
   border-top: 1px solid var(--border-color, #e5e5e5);
+}
+
+// Match the reference blog's reading geometry and article rhythm.
+.container {
+  box-sizing: border-box;
+  max-width: 832px;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.post {
+  p {
+    margin: 0 0 1rem;
+    text-align: left;
+  }
+
+  // Set this on reading elements directly rather than relying on body
+  // inheritance, which the remote theme can override.
+  p,
+  li {
+    line-height: 1.6;
+  }
+
+  h2,
+  h3 {
+    font-family: inherit;
+    font-weight: 700;
+    margin-top: 32px;
+  }
+}
+
+.post-title {
+  font-family: inherit;
+  font-size: 2em;
+  font-weight: 700;
+  line-height: normal;
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.post-info {
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+}
+
+.post-line {
+  display: none;
+}
+
+pre {
+  padding: 16px;
+  font-size: 14px;
+}
+
+code,
+pre code {
+  font-size: 14px;
 }
 
 // Profile photo on the about page
