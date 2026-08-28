@@ -38,6 +38,11 @@ html {
   pointer-events: none;
 }
 
+// Keep each home-page entry visually open rather than separating posts with a rule.
+.catalogue-item {
+  border-bottom: none;
+}
+
 // Full-width but subtle title underline on the home page listing
 .catalogue-line,
 .catalogue-item:hover .catalogue-line,

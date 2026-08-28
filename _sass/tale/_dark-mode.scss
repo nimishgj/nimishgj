@@ -1,14 +1,14 @@
-// Dark mode theme colors
+// Dark mode uses softened neutrals to reduce glare during long-form reading.
 [data-theme="dark"] {
-  --bg-color: #202124;
-  --text-color: #b0b0b0;
-  --heading-color: #d0d0d0;
-  --link-color: #4a9ae1;
-  --border-color: #333;
-  --code-bg: #f9f9f9;
-  --code-color: #bf616a;
-  --shadow-color: rgba(0, 0, 0, .5);
-  --tint-color: #ddd;
+  --bg-color: #181818;
+  --text-color: #d0d0d0;
+  --heading-color: #ededed;
+  --link-color: #dedede;
+  --border-color: #383838;
+  --code-bg: #202020;
+  --code-color: #d0d0d0;
+  --shadow-color: #000;
+  --tint-color: #a8a8a8;
 }
 
 // Apply CSS custom properties to elements
@@ -80,25 +80,25 @@ footer span {
   }
 }
 
-// Code block overrides for dark mode
+// Keep code surfaces monochrome too. The wildcard neutralizes syntax colors
+// supplied by the remote theme without affecting colors in article diagrams.
+code,
+pre,
+.highlight,
+.highlighter-rouge {
+  background-color: var(--code-bg) !important;
+  color: var(--code-color) !important;
+}
+
+.highlight * {
+  color: var(--code-color) !important;
+}
+
 [data-theme="dark"] {
-  code {
-    background-color: #2a2a2a !important;
-    color: #e5e5e5;
-  }
-
-  pre {
-    background-color: #2a2a2a !important;
-    color: #e5e5e5;
-  }
-
-  .highlight {
-    background-color: #2a2a2a !important;
-    color: #e5e5e5;
-  }
-
+  pre,
+  .highlight,
   .highlighter-rouge {
-    background-color: #2a2a2a !important;
+    border: 1px solid var(--border-color);
   }
 }
 
