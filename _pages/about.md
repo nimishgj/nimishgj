@@ -2,6 +2,7 @@
 layout: post
 title: About
 permalink: /about/
+hide_author: true
 ---
 
 <img src="/assets/img/profile/nimisha-profile.jpg" alt="Nimisha GJ" class="about-photo">
@@ -16,7 +17,7 @@ I write here to make sense of what I learn. Sometimes the best way to understand
 
 If you'd rather see the formal version — work history, open-source contributions, talks — [download my resume](/assets/nimisha-gj-resume.pdf).
 
-When I'm not staring at terminals, you might find me tinkering with my [dotfiles](https://github.com/nimishgj/dotfiles) (it's a rabbit hole, I know), out on a bike ride, lost in a book, or gaming. I'm also currently trying to learn bowling — it's harder than it looks.
+Outside work, you might find me out on a bike ride, lost in a book, gaming, or practicing bowling — it's harder than it looks. I also spend more time than I should tinkering with my [dotfiles](https://github.com/nimishgj/dotfiles).
 
 ## Stuff I've built
 

@@ -10,6 +10,20 @@ p {
   font-family: inherit;
 }
 
+// Make links unmistakable in both themes.
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
+
+// Navigation and home-page post cards are already visually identifiable and
+// should not propagate an underline through all of their nested text.
+.nav a,
+.catalogue-item {
+  text-decoration: none;
+}
+
 // Match the reference header: identity followed by horizontal navigation links.
 .nav {
   box-shadow: none;
@@ -60,17 +74,28 @@ html {
   pointer-events: none;
 }
 
-// Keep each home-page entry visually open rather than separating posts with a rule.
+// Compact, text-only home-page entries.
 .catalogue-item {
+  align-items: baseline;
   border-bottom: none;
+  display: flex;
+  gap: 20px;
+  padding: 1.25rem 0;
 }
 
-// Full-width but subtle title underline on the home page listing
-.catalogue-line,
-.catalogue-item:hover .catalogue-line,
-.catalogue-item:focus .catalogue-line {
-  width: 100%;
-  border-top: 1px solid var(--border-color, #e5e5e5);
+.catalogue-time {
+  flex: 0 0 110px;
+  font-family: $monospaced;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.catalogue-title {
+  color: var(--link-color);
+  font-size: 1.25rem;
+  margin: 0;
+  text-decoration: underline;
+  text-underline-offset: .15em;
 }
 
 // Match the reference blog's reading geometry and article rhythm.

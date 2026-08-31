@@ -59,7 +59,7 @@ class ThemeTest < Minitest::Test
       "bg-color" => "#fff",
       "text-color" => "#404040",
       "heading-color" => "#262626",
-      "link-color" => "#333",
+      "link-color" => "#0969da",
       "border-color" => "#dedede",
       "code-bg" => "#f5f5f5",
       "code-color" => "#404040",
@@ -78,7 +78,7 @@ class ThemeTest < Minitest::Test
       "bg-color" => "#181818",
       "text-color" => "#d0d0d0",
       "heading-color" => "#ededed",
-      "link-color" => "#dedede",
+      "link-color" => "#58a6ff",
       "border-color" => "#383838",
       "code-bg" => "#202020",
       "code-color" => "#d0d0d0",
@@ -96,6 +96,14 @@ class ThemeTest < Minitest::Test
 
     assert_equal "var(--bg-color)", property_value(page, "background-color")
     assert_equal "var(--text-color)", property_value(page, "color")
+  end
+
+  def test_links_are_visibly_blue_and_underlined
+    link = declaration_block("a")
+
+    assert_equal "var(--link-color)", property_value(link, "color")
+    assert_equal "underline", property_value(link, "text-decoration")
+    assert_equal ".15em", property_value(link, "text-underline-offset")
   end
 
   def test_code_uses_theme_colors
@@ -161,6 +169,102 @@ class ThemeTest < Minitest::Test
     assert_equal "static", property_value(links, "position")
     assert_equal "flex", property_value(links, "display")
     assert_equal "16px", property_value(links, "gap")
+  end
+
+  def test_navigation_and_home_post_cards_are_not_underlined
+    exceptions = declaration_block(".nav a, .catalogue-item")
+
+    assert_equal "none", property_value(exceptions, "text-decoration")
+  end
+
+  def test_home_page_omits_post_media_previews
+    home = File.read(File.join(self.class.output_directory, "index.html"))
+
+    refute_includes home, 'class="catalogue-preview"'
+  end
+
+  def test_home_page_shows_only_post_titles
+    home = File.read(File.join(self.class.output_directory, "index.html"))
+    post_cards = home.scan(/<a[^>]+class="catalogue-item"[^>]*>(.*?)<\/a>/m).flatten
+
+    refute_empty post_cards, "Expected rendered home page to contain post cards"
+    post_cards.each do |card|
+      refute_includes card, 'class="catalogue-line"'
+      refute_includes card, "<p>"
+      assert_includes card, 'class="catalogue-title"'
+    end
+  end
+
+  def test_home_page_lists_every_post_without_pagination
+    home = File.read(File.join(self.class.output_directory, "index.html"))
+    expected_post_count = Dir.glob(File.expand_path("../_posts/*", __dir__)).length
+
+    assert_equal expected_post_count, home.scan('class="catalogue-item"').length
+    refute_includes home, '<div class="pagination">'
+  end
+
+  def test_home_page_post_cards_use_compact_spacing
+    item = declaration_block(".catalogue-item")
+    title = declaration_block(".catalogue-title")
+
+    assert_equal "1.25rem 0", property_value(item, "padding")
+    assert_equal "flex", property_value(item, "display")
+    assert_equal "baseline", property_value(item, "align-items")
+    assert_equal "20px", property_value(item, "gap")
+    assert_equal "1.25rem", property_value(title, "font-size")
+    assert_equal "0", property_value(title, "margin")
+  end
+
+  def test_home_page_places_date_to_left_of_title
+    home = File.read(File.join(self.class.output_directory, "index.html"))
+    post_cards = home.scan(/<a[^>]+class="catalogue-item"[^>]*>(.*?)<\/a>/m).flatten
+    refute_empty post_cards, "Expected rendered home page to contain post cards"
+
+    post_cards.each do |card|
+      date_position = card.index('class="catalogue-time"')
+      title_position = card.index('class="catalogue-title"')
+      refute_nil date_position, "Expected post card to contain its date"
+      assert_operator date_position, :<, title_position
+    end
+  end
+
+  def test_home_page_post_titles_look_clickable
+    title = declaration_block(".catalogue-title")
+
+    assert_equal "var(--link-color)", property_value(title, "color")
+    assert_equal "underline", property_value(title, "text-decoration")
+    assert_equal ".15em", property_value(title, "text-underline-offset")
+  end
+
+  def test_about_page_omits_author_byline
+    about = File.read(File.join(self.class.output_directory, "about/index.html"))
+
+    refute_includes about, "Written by"
+  end
+
+  def test_regular_post_includes_author_byline
+    post_path = Dir.glob(File.join(self.class.output_directory, "20*/*.html")).first
+    refute_nil post_path, "Expected the rendered site to contain a regular post"
+    post = File.read(post_path)
+
+    assert_includes post, "Written by"
+  end
+
+  def test_regular_post_byline_links_to_configured_author
+    post_path = Dir.glob(File.join(self.class.output_directory, "20*/*.html")).first
+    refute_nil post_path, "Expected the rendered site to contain a regular post"
+    post = File.read(post_path)
+
+    assert_includes post, '<a href="https://nimishgj.com">Nimisha GJ</a>'
+  end
+
+  def test_post_top_link_targets_an_existing_anchor
+    post_path = Dir.glob(File.join(self.class.output_directory, "20*/*.html")).first
+    refute_nil post_path, "Expected the rendered site to contain a regular post"
+    post = File.read(post_path)
+
+    assert_includes post, 'id="top"'
+    assert_includes post, 'href="#top" class="top"'
   end
 
   def test_typography_matches_reference_blog
