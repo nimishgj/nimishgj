@@ -146,6 +146,29 @@ html {
   display: none;
 }
 
+// Markdown tables: the remote theme ships none, so they rendered as bare text.
+.post table {
+  border-collapse: collapse;
+  display: block;
+  margin: 0 0 1.5rem;
+  max-width: 100%;
+  overflow-x: auto;
+
+  th,
+  td {
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background-color: var(--code-bg);
+    color: var(--heading-color);
+    font-weight: 700;
+  }
+}
+
 pre {
   padding: 16px;
   font-size: 14px;

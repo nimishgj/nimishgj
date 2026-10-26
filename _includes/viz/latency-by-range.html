@@ -1,0 +1,61 @@
+<style>
+.viz{--v-ink:#262626;--v-ink2:#525252;--v-muted:#7a7a7a;--v-grid:#ececec;--v-axis:#c8c8c8;
+--v-s1:#2a78d6;--v-s2:#eb6834;--v-card:#fafafa;--v-card-border:#dedede;
+margin:1.75rem 0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+:root[data-theme="dark"] .viz{--v-ink:#ededed;--v-ink2:#c3c3c3;--v-muted:#8a8a8a;--v-grid:#2a2a2a;--v-axis:#444;
+--v-s1:#3987e5;--v-s2:#d95926;--v-card:#202020;--v-card-border:#383838}
+.viz{overflow-x:auto}
+.viz svg{display:block;width:100%;min-width:600px;height:auto;overflow:visible}
+.viz text{font-family:inherit}
+.viz figcaption{font-size:14px;color:var(--v-muted);margin-top:.5rem;line-height:1.5}
+.viz details{font-size:14px;margin-top:.25rem;color:var(--v-ink2)}
+.viz details summary{cursor:pointer;color:var(--v-muted)}
+.viz details table{margin:.5rem 0 0;font-variant-numeric:tabular-nums}
+.viz .bar:hover{opacity:.8}
+</style>
+<figure class="viz">
+<svg viewBox="0 0 760 340" role="img" aria-labelledby="lr-t lr-d">
+<title id="lr-t">p95 latency: all searches vs by time range</title>
+<desc id="lr-d">Overall p95 latency stays around 1.2 seconds. Split by time range, 7-day searches took 9.2 s and 30-day searches 23.8 s before the environment index, and 2.1 s and 4.6 s after.</desc>
+<text x="44" y="22" font-size="14" font-weight="700" fill="var(--v-ink)">All searches, p95</text>
+<text x="44" y="40" font-size="12" fill="var(--v-muted)">last 4 weeks</text>
+<text x="300" y="22" font-size="14" font-weight="700" fill="var(--v-ink)">p95 by time range searched</text>
+<rect x="300" y="32" width="10" height="10" rx="2" fill="var(--v-s1)"/><text x="315" y="41" font-size="12" fill="var(--v-ink2)">before index</text>
+<rect x="400" y="32" width="10" height="10" rx="2" fill="var(--v-s2)"/><text x="415" y="41" font-size="12" fill="var(--v-ink2)">after index on environment</text>
+<line x1="44" x2="750" y1="280.0" y2="280.0" stroke="var(--v-axis)" stroke-width="1"/>
+<text x="36" y="284.0" font-size="11" text-anchor="end" fill="var(--v-muted)" style="font-variant-numeric:tabular-nums">0s</text>
+<line x1="44" x2="750" y1="236.8" y2="236.8" stroke="var(--v-grid)" stroke-width="1"/>
+<text x="36" y="240.8" font-size="11" text-anchor="end" fill="var(--v-muted)" style="font-variant-numeric:tabular-nums">5s</text>
+<line x1="44" x2="750" y1="193.6" y2="193.6" stroke="var(--v-grid)" stroke-width="1"/>
+<text x="36" y="197.6" font-size="11" text-anchor="end" fill="var(--v-muted)" style="font-variant-numeric:tabular-nums">10s</text>
+<line x1="44" x2="750" y1="150.4" y2="150.4" stroke="var(--v-grid)" stroke-width="1"/>
+<text x="36" y="154.4" font-size="11" text-anchor="end" fill="var(--v-muted)" style="font-variant-numeric:tabular-nums">15s</text>
+<line x1="44" x2="750" y1="107.2" y2="107.2" stroke="var(--v-grid)" stroke-width="1"/>
+<text x="36" y="111.2" font-size="11" text-anchor="end" fill="var(--v-muted)" style="font-variant-numeric:tabular-nums">20s</text>
+<line x1="44" x2="750" y1="64.0" y2="64.0" stroke="var(--v-grid)" stroke-width="1"/>
+<text x="36" y="68.0" font-size="11" text-anchor="end" fill="var(--v-muted)" style="font-variant-numeric:tabular-nums">25s</text>
+<polyline points="50.0,269.6 57.4,270.1 64.8,269.2 72.2,268.8 79.6,270.5 87.0,269.6 94.4,269.2 101.9,269.6 109.3,270.1 116.7,268.8 124.1,268.3 131.5,269.6 138.9,270.5 146.3,269.6 153.7,269.2 161.1,269.6 168.5,268.8 175.9,270.1 183.3,269.6 190.7,269.2 198.1,269.6 205.6,270.5 213.0,269.6 220.4,268.8 227.8,269.2 235.2,269.6 242.6,270.1 250.0,269.6" fill="none" stroke="var(--v-ink2)" stroke-width="2" stroke-linejoin="round"/>
+<text x="150.0" y="255.6" font-size="12" text-anchor="middle" fill="var(--v-ink2)">≈1.2s, looked healthy</text>
+<text x="150.0" y="300" font-size="11" text-anchor="middle" fill="var(--v-muted)">day 1 → day 28</text>
+<line x1="272" x2="272" y1="58" y2="280" stroke="var(--v-grid)" stroke-width="1"/>
+<path class="bar" d="M321.0,280.0V278.3Q321.0,276.5 322.7,276.5H353.3Q355.0,276.5 355.0,278.3V280.0Z" fill="var(--v-s1)"><title>1 hour, before index: 0.4s</title></path>
+<path class="bar" d="M357.0,280.0V278.3Q357.0,276.5 358.7,276.5H389.3Q391.0,276.5 391.0,278.3V280.0Z" fill="var(--v-s2)"><title>1 hour, after index: 0.4s</title></path>
+<text x="356.0" y="300" font-size="12" text-anchor="middle" fill="var(--v-ink2)">1 hour</text>
+<path class="bar" d="M433.0,280.0V274.5Q433.0,270.5 437.0,270.5H463.0Q467.0,270.5 467.0,274.5V280.0Z" fill="var(--v-s1)"><title>24 hours, before index: 1.1s</title></path>
+<path class="bar" d="M469.0,280.0V275.4Q469.0,271.4 473.0,271.4H499.0Q503.0,271.4 503.0,275.4V280.0Z" fill="var(--v-s2)"><title>24 hours, after index: 1.0s</title></path>
+<text x="468.0" y="300" font-size="12" text-anchor="middle" fill="var(--v-ink2)">24 hours</text>
+<path class="bar" d="M545.0,280.0V204.5Q545.0,200.5 549.0,200.5H575.0Q579.0,200.5 579.0,204.5V280.0Z" fill="var(--v-s1)"><title>7 days, before index: 9.2s</title></path>
+<path class="bar" d="M581.0,280.0V265.9Q581.0,261.9 585.0,261.9H611.0Q615.0,261.9 615.0,265.9V280.0Z" fill="var(--v-s2)"><title>7 days, after index: 2.1s</title></path>
+<text x="562.0" y="194.5" font-size="12" text-anchor="middle" fill="var(--v-ink)" font-weight="600">9.2s</text>
+<text x="598.0" y="255.9" font-size="12" text-anchor="middle" fill="var(--v-ink)" font-weight="600">2.1s</text>
+<text x="580.0" y="300" font-size="12" text-anchor="middle" fill="var(--v-ink2)">7 days</text>
+<path class="bar" d="M657.0,280.0V78.4Q657.0,74.4 661.0,74.4H687.0Q691.0,74.4 691.0,78.4V280.0Z" fill="var(--v-s1)"><title>30 days, before index: 23.8s</title></path>
+<path class="bar" d="M693.0,280.0V244.3Q693.0,240.3 697.0,240.3H723.0Q727.0,240.3 727.0,244.3V280.0Z" fill="var(--v-s2)"><title>30 days, after index: 4.6s</title></path>
+<text x="674.0" y="68.4" font-size="12" text-anchor="middle" fill="var(--v-ink)" font-weight="600">23.8s</text>
+<text x="710.0" y="234.3" font-size="12" text-anchor="middle" fill="var(--v-ink)" font-weight="600">4.6s</text>
+<text x="692.0" y="300" font-size="12" text-anchor="middle" fill="var(--v-ink2)">30 days</text>
+<text x="580.0" y="320" font-size="11" text-anchor="middle" fill="var(--v-muted)">7- and 30-day searches were about 3% of all queries</text>
+</svg>
+<figcaption>The overall p95 never moved, because long-range searches were too rare to reach it. Split by time range, they were the slowest thing in the product. Illustrative numbers.</figcaption>
+<details><summary>Show data</summary><table><thead><tr><th>Time range</th><th>p95 before</th><th>p95 after</th></tr></thead><tbody><tr><td>1 hour</td><td>0.4s</td><td>0.4s</td></tr><tr><td>24 hours</td><td>1.1s</td><td>1.0s</td></tr><tr><td>7 days</td><td>9.2s</td><td>2.1s</td></tr><tr><td>30 days</td><td>23.8s</td><td>4.6s</td></tr></tbody></table></details>
+</figure>

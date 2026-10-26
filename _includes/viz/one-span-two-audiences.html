@@ -1,0 +1,54 @@
+<style>
+.viz{--v-ink:#262626;--v-ink2:#525252;--v-muted:#7a7a7a;--v-grid:#ececec;--v-axis:#c8c8c8;
+--v-s1:#2a78d6;--v-s2:#eb6834;--v-card:#fafafa;--v-card-border:#dedede;
+margin:1.75rem 0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+:root[data-theme="dark"] .viz{--v-ink:#ededed;--v-ink2:#c3c3c3;--v-muted:#8a8a8a;--v-grid:#2a2a2a;--v-axis:#444;
+--v-s1:#3987e5;--v-s2:#d95926;--v-card:#202020;--v-card-border:#383838}
+.viz{overflow-x:auto}
+.viz svg{display:block;width:100%;min-width:600px;height:auto;overflow:visible}
+.viz text{font-family:inherit}
+.viz figcaption{font-size:14px;color:var(--v-muted);margin-top:.5rem;line-height:1.5}
+.viz details{font-size:14px;margin-top:.25rem;color:var(--v-ink2)}
+.viz details summary{cursor:pointer;color:var(--v-muted)}
+.viz details table{margin:.5rem 0 0;font-variant-numeric:tabular-nums}
+.viz .bar:hover{opacity:.8}
+</style>
+<figure class="viz">
+<svg viewBox="0 0 760 300" role="img" aria-labelledby="os-t os-d">
+<title id="os-t">One span, two audiences</title>
+<desc id="os-d">A single search span carries duration, time range, filters, search bar match and next action. Engineering reads duration, time range and filters to find slow long-range searches. Product reads filters, search bar match and next action to see where users hesitate.</desc>
+<defs><marker id="os-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="context-stroke"/></marker></defs>
+<rect x="10" y="30" width="300" height="240" rx="8" fill="var(--v-card)" stroke="var(--v-card-border)"/>
+<text x="28" y="60" font-size="14" font-weight="700" fill="var(--v-ink)">one search</text>
+<text x="28" y="78" font-size="12" fill="var(--v-muted)">span + UI events</text>
+<circle cx="32" cy="110" r="4.5" fill="var(--v-s1)"/>
+<text x="56" y="114" font-size="13" fill="var(--v-ink2)" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">duration</text>
+<text x="294" y="114" font-size="12" text-anchor="end" fill="var(--v-muted)">23.8s</text>
+<circle cx="32" cy="142" r="4.5" fill="var(--v-s1)"/>
+<text x="56" y="146" font-size="13" fill="var(--v-ink2)" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">time_range</text>
+<text x="294" y="146" font-size="12" text-anchor="end" fill="var(--v-muted)">30d</text>
+<circle cx="32" cy="174" r="4.5" fill="var(--v-s1)"/>
+<circle cx="44" cy="174" r="4.5" fill="var(--v-s2)"/>
+<text x="56" y="178" font-size="13" fill="var(--v-ink2)" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">filters</text>
+<text x="294" y="178" font-size="12" text-anchor="end" fill="var(--v-muted)">environment, level</text>
+<circle cx="32" cy="206" r="4.5" fill="var(--v-s2)"/>
+<text x="56" y="210" font-size="13" fill="var(--v-ink2)" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">search_bar_match</text>
+<text x="294" y="210" font-size="12" text-anchor="end" fill="var(--v-muted)">none</text>
+<circle cx="32" cy="238" r="4.5" fill="var(--v-s2)"/>
+<text x="56" y="242" font-size="13" fill="var(--v-ink2)" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">next_action</text>
+<text x="294" y="242" font-size="12" text-anchor="end" fill="var(--v-muted)">opened filter menu</text>
+<rect x="450" y="30" width="300" height="110" rx="8" fill="var(--v-card)" stroke="var(--v-card-border)"/>
+<rect x="450" y="44" width="4" height="82" rx="2" fill="var(--v-s1)"/>
+<text x="470" y="60" font-size="14" font-weight="700" fill="var(--v-ink)">Engineering</text>
+<text x="470" y="84" font-size="13" fill="var(--v-ink2)">Latency by time range and filter</text>
+<text x="470" y="110" font-size="13" fill="var(--v-muted)">Found: no index on environment</text>
+<rect x="450" y="160" width="300" height="110" rx="8" fill="var(--v-card)" stroke="var(--v-card-border)"/>
+<rect x="450" y="174" width="4" height="82" rx="2" fill="var(--v-s2)"/>
+<text x="470" y="190" font-size="14" font-weight="700" fill="var(--v-ink)">Product</text>
+<text x="470" y="214" font-size="13" fill="var(--v-ink2)">Empty searches, then a filter opened</text>
+<text x="470" y="240" font-size="13" fill="var(--v-muted)">Found: filters belong in the search bar</text>
+<path d="M316,120 C380,120 380,85 444,85" fill="none" stroke="var(--v-s1)" stroke-width="2" marker-end="url(#os-arr)"/>
+<path d="M316,200 C380,200 380,215 444,215" fill="none" stroke="var(--v-s2)" stroke-width="2" marker-end="url(#os-arr)"/>
+</svg>
+<figcaption>The same telemetry answers both teams' questions. Blue attributes fed the engineering view, orange the product view; filters fed both.</figcaption>
+</figure>
